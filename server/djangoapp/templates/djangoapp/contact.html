@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dealership Review</title>
+    <title>About us</title>
     {% load static %}
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
@@ -13,10 +13,8 @@
     <script src="https://unpkg.com/bootstrap-table@1.18.2/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
 
 </head>
-
-    <body>
-    <!--Add a nav bar here -->
-    <nav class="navbar navbar-light bg-light navbar-expand-lg">
+<div>
+<nav class="navbar navbar-light bg-light navbar-expand-lg">
         <div class="container-fluid">
             <div class="navbar-header">
                 <a class="navbar-brand" href="{% url 'djangoapp:index' %}">Dealership Review</a>
@@ -53,8 +51,18 @@
             </ul>
         </div>
     </nav>
-    <!--Add a dealer table here -->
-
-    </body>
-
+    <div class="container"></div>
+        <div class="card-deck">
+            <div class="card">
+                <h1 class="text-primary display-4 card-header">
+                    Our contacts
+                </h1>
+                <ul class="list-group">
+                  <li class="list-group-item">Phone: +1 12839082</li>
+                  <li class="list-group-item">Address: 2031 Pemoke Bay Dr League City, Texas(TX), 75473</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
 </html>

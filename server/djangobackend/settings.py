@@ -27,7 +27,8 @@ DEBUG = True
 
 APPEND_SLASH = True
 
-ALLOWED_HOSTS = ["localhost"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", 'bigbestcartoop.eu-de.cf.appdomain.cloud',
+                 'bigbestcartoop.eu-de.mybluemix.net']
 
 
 # Application definition
