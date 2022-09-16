@@ -10,7 +10,12 @@ from datetime import datetime
 import logging
 import json
 
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
+
+from .restapis import get_dealers_from_cf, get_dealer_reviews_from_cf, post_request
+
 # Get an instance of a logger
+
 logger = logging.getLogger(__name__)
 
 
@@ -95,14 +100,70 @@ def registration_request(request):
 def get_dealerships(request):
     context = {}
     if request.method == "GET":
-        return render(request, 'djangoapp/index.html', context)
+        url = "https://eu-de.functions.appdomain.cloud/api/v1/web/alexoff_djangoserver-space/capstone/dealerships.json"
+        # Get dealers from the URL
+        _state = request.GET.get('state')
+        if _state:
+            dealerships = get_dealers_from_cf(url, state=_state)
+        else:
+            dealerships = get_dealers_from_cf(url)
+        # Concat all dealer's short name
+        dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
+        # Return a list of dealer short name
+        return HttpResponse(dealer_names)
 
 
+def get_reviews(request):
+    context = {}
+    print(request)
+    if request.method == "GET":
+        url = "https://eu-de.functions.appdomain.cloud/api/v1/web/alexoff_djangoserver-space/capstone/review.json"
+        # Get dealers from the URL
+        _dealer_id = request.GET.get('dealerId')
+        if _dealer_id:
+            reviews = get_dealer_reviews_from_cf(url, dealer_id=_dealer_id)
+        else:
+            reviews = get_dealer_reviews_from_cf(url)
+        # Concat all dealer's short name
+        names = ' '.join([review.review for review in reviews])
+        # Return a list of dealer short name
+        return HttpResponse(names)
 # Create a `get_dealer_details` view to render the reviews of a dealer
 # def get_dealer_details(request, dealer_id):
-# ...
 
+
+def get_dealer_details(request, dealer_id):
+    context = {}
+    if request.method == "GET":
+        url = "https://eu-de.functions.appdomain.cloud/api/v1/web/alexoff_djangoserver-space/capstone/review.json"
+        # Get dealers from the URL
+        reviews = get_dealer_reviews_from_cf(url, dealer_id=dealer_id)
+        print(reviews)
+        # Concat all dealer's short name
+        names = ' '.join([review.review for review in reviews])
+        # Return a list of dealer short name
+        return HttpResponse(names)
+    if request.method == 'POST':
+        return add_review(request, dealer_id)
 # Create a `add_review` view to submit a review
 # def add_review(request, dealer_id):
 # ...
 
+
+def add_review(request, dealer_id):
+    if request.method == 'POST' and User.is_authenticated:
+        review = {
+            "id": 232,
+            "name": "Gora Zettoi",
+            "dealership": dealer_id,
+            "review": "proofed foreground capability",
+            "purchase": True,
+            "purchase_date": "09/17/2012",
+            "car_make": "Pontiac",
+            "car_model": "Firebird",
+            "car_year": 1994
+        }
+        payload = {"review": review}
+        resp = post_request('https://eu-de.functions.appdomain.cloud/api/v1/web/alexoff_djangoserver-space/capstone'
+                            '/review.json', json_payload=payload)
+        return HttpResponse(resp)
