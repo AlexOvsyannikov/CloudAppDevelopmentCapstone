@@ -28,8 +28,8 @@ urlpatterns = [
     path(route='logout', view=views.logout_request, name='logout'),
     path(route='registration', view=views.registration_request, name='registration'),
     path(route='reviews', view=views.get_reviews, name='reviews'),
-    path(route='dealer/<int:dealer_id>/', view=csrf_exempt(views.get_dealer_details), name='dealer_details'),
-    path(route='dealer/<int:dealer_id>/', view=csrf_exempt(views.get_dealer_details), name='dealer_details')
+    path(route='dealer/<int:dealer_id>/', view=views.get_dealer_details, name='dealer_details'),
+    path(route='review/<int:dealer_id>', view=views.add_review, name='review')
     # path for dealer reviews view
 
     # path for add a review view

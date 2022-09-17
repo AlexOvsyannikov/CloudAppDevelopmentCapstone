@@ -11,6 +11,56 @@
 
 </head>
     <body>
-    <!--Add review form here -->
+    <form action="{% url 'djangoapp:review' dealer_id %}" method="post">
+        {% csrf_token %}
+    <div class="card-deck">
+        <div class="card">
+            <div class="card-title">
+                <h2>Add a review about {{ dealer.full_name }}</h2>
+            </div>
+            <div class="card-text">
+                <p><b>Enter the review content: </b></p>
+                <textarea class="form-control" id="content" name="content" rows="2" required></textarea>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="purchasecheck" id="purchasecheck" value="">
+                <label class="form-check-label" for="purchasecheck">
+                    Has purchased the car from {{ dealer.full_name }}?
+                    <p class="text-secondary">(select purchased car information below if checked)</p>
+                </label>
+                </div>
+            <div class="form-check">
+                <label class="form-check-label" for="car">
+                    <b>Select your car (model-make-year):</b>
+                </label>
+                <select name="car" id="car" class="form-select" required>
+                 {% for car in cars %}
+                     <option selected value={{car.id}}>{{car.name}}-{{car.car_make.name}}-{{ car.year.year }}</option>
+                 {% endfor %}
+                </select>
+            </div>
+            <br>
+            <div class="form-check">
+                <label class="form-check-label" for="purchasedate">
+                    <b>Select Your Purchase Date:</b>
+                </label>
+                <br>
+                <input class="date-own form-control" type="text" name="purchasedate" id="purchasedate">
+            </div>
+
+
+
+                <input type="submit" value="Submit" class="btn btn-primary">
+            </div>
+
+            </div>
+    </div>
+
+    </form>
     </body>
+    <script type="text/javascript">
+          $('.date-own').datepicker({
+             format: 'mm/dd/yyyy'
+           });
+     </script>
 </html>

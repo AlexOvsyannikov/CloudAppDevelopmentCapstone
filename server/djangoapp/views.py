@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 # from .models import related models
+from .models import CarMake, CarModel
 # from .restapis import related methods
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
@@ -108,9 +109,10 @@ def get_dealerships(request):
         else:
             dealerships = get_dealers_from_cf(url)
         # Concat all dealer's short name
-        dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
+
+        context['dealers'] = dealerships
         # Return a list of dealer short name
-        return HttpResponse(dealer_names)
+        return render(request, 'djangoapp/index.html', context)
 
 
 def get_reviews(request):
@@ -141,29 +143,45 @@ def get_dealer_details(request, dealer_id):
         print(reviews)
         # Concat all dealer's short name
         names = ' '.join([review.review for review in reviews])
+        context['reviews'] = reviews
+        context['id'] = dealer_id
         # Return a list of dealer short name
-        return HttpResponse(names)
-    if request.method == 'POST':
-        return add_review(request, dealer_id)
-# Create a `add_review` view to submit a review
-# def add_review(request, dealer_id):
-# ...
+        return render(request, 'djangoapp/dealer_details.html', context)
 
 
 def add_review(request, dealer_id):
+    if request.method == 'GET':
+        context = {}
+
+        dealers = get_dealers_from_cf('https://eu-de.functions.appdomain.cloud/api/v1/web/alexoff_djangoserver-space'
+                                      '/capstone/dealerships.json')
+        for dealer in dealers:
+            if dealer.id == dealer_id:
+                context['dealer'] = dealer
+                break
+        context['dealer_id'] = dealer_id
+        context['cars'] = CarModel.objects.filter(dealer_id=dealer_id)
+        print(context['cars'][0].car_make)
+        return render(request, 'djangoapp/add_review.html', context)
     if request.method == 'POST' and User.is_authenticated:
+        print(request.POST)
+        if request.POST.get('car'):
+            car_obj = CarModel.objects.get(id=request.POST.get('car')[0])
+            print(car_obj)
+        else:
+            car_obj = None
         review = {
-            "id": 232,
-            "name": "Gora Zettoi",
+            "id": 12,
+            "name": f'{User.first_name} {User.last_name}',
             "dealership": dealer_id,
-            "review": "proofed foreground capability",
-            "purchase": True,
-            "purchase_date": "09/17/2012",
-            "car_make": "Pontiac",
-            "car_model": "Firebird",
-            "car_year": 1994
+            "review": request.POST.get('content'),
+            "purchase": True if request.POST.get('purchasecheck') else False,
+            "purchase_date": request.POST.get('purchasedate')[0] if request.POST.get('purchasedate') else '',
+            "car_make": car_obj.car_make.name if car_obj else '',
+            "car_model": car_obj.name if car_obj else '',
+            "car_year": car_obj.year.year if car_obj else ''
         }
         payload = {"review": review}
         resp = post_request('https://eu-de.functions.appdomain.cloud/api/v1/web/alexoff_djangoserver-space/capstone'
                             '/review.json', json_payload=payload)
-        return HttpResponse(resp)
+        return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
